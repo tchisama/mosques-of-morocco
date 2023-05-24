@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet,TextInput, Text, View, Touchable, TouchableOpacity, ScrollView, Image } from 'react-native';
 import MapView , {Callout, Marker}from 'react-native-maps';
 import * as Location from "expo-location";
@@ -60,6 +60,7 @@ const mosques = [
 
   const [openSearch,setOpenSearch]=useState(false)
   const [search,setSearch]=useState("")
+  const _map = useRef(null);
 
 
   const userLocation = async ()=>{
@@ -78,6 +79,22 @@ const mosques = [
     })
   }
 
+
+
+
+  const GoTo = (coordinate)=>{
+    _map.current.animateToRegion(
+      {
+        ...coordinate,
+        latitudeDelta:0.005,
+        longitudeDelta:0.005,
+      }
+    )
+  }
+
+
+
+
   useEffect(()=>{
     userLocation()
   },[])
@@ -90,20 +107,20 @@ const mosques = [
 
         {
           !openSearch &&
-        <TouchableOpacity onPress={()=>setOpenSearch(p=>!p)} className=" w-10 h-10 mr-2 justify-center items-center rounded-full bg-[#e9f1ce] border border-white">
+        <TouchableOpacity  onPress={()=>setOpenSearch(p=>!p)} className=" t.shadow2xl  w-10 h-10 mr-2 justify-center items-center rounded-full bg-[#e9f1ce] border border-white">
           <Icon name={"search"} size={25} color={"#606C38"}></Icon>
         </TouchableOpacity>
         }
 
         { openSearch &&
-        <View className="flex-row flex-1 bg-[#e9f1ce] border border-white items-center px-2 rounded-full ">
+        <View className="flex-row flex-1 bg-[#e9f1ce] border t.shadow2xl border-white items-center px-2 rounded-full ">
           <TouchableOpacity onPress={()=>{setOpenSearch(p=>!p);setSearch("")}} className=" justify-center mr-2 items-center rounded-full ">
             <Icon name={"arrow-back"} size={25} color={"#606C38"}></Icon>
           </TouchableOpacity>
           <TextInput value={search} onChangeText={setSearch} placeholder='search a mosque' className="flex-1 h-full  pr-4  rounded-full "></TextInput>
         </View>
         }
-        <TouchableOpacity className=" w-10 h-10 ml-2 justify-center items-center rounded-full bg-[#e9f1ce] border border-white">
+        <TouchableOpacity className=" w-10 h-10 ml-2 justify-center items-center t.shadow2xl  rounded-full bg-[#e9f1ce] border border-white">
           <Icon name="menu" size={25} color={"#606C38"}></Icon>
         </TouchableOpacity>
       </View>
@@ -131,7 +148,7 @@ const mosques = [
 
 
 
-      <MapView customMapStyle={mapTheme} region={mapRegion}  className="flex-1 w-full" >
+      <MapView ref={_map} customMapStyle={mapTheme} region={mapRegion}  className="flex-1 w-full" >
         <Marker
           coordinate={mapRegion}
           title="Your location"
@@ -152,14 +169,14 @@ const mosques = [
                 <Callout className="h-fit w-[200px] rounded-xl">
                     <Text className="text-lg">{m.name}</Text>
                     <Text className="py-1 text-xs">{m.name}</Text>
-                    <View className="flex-row w-36 py-1">
+                    {/* <View className="flex-row w-36 py-1">
                         <TouchableOpacity className="  mr-1 p-1 px-3 w-fit justify-center items-center rounded-full bg-[#545c3999] ">
                           <Text className="text-white">open</Text>
                         </TouchableOpacity>
                         <TouchableOpacity className="  p-1 px-3 w-fit justify-center items-center rounded-full bg-[#545c3999] ">
                           <Text className="text-white">see road</Text>
                         </TouchableOpacity>
-                    </View>
+                    </View> */}
                 </Callout>
               </Marker>
             )
@@ -189,17 +206,27 @@ const mosques = [
 
       {
         openSearch &&
-        <View className=" h-36 absolute bottom-0 mb-2 w-full">
+        <View className="  absolute bottom-0 w-full">
         <ScrollView  horizontal className="w-full ">
           {
             mosques.filter(m=>m.name.toLocaleLowerCase().includes(search.toLocaleLowerCase())).map((m,key)=>(
-              <View key={key} className="w-fit  bg-[#eff1e6] rounded-lg overflow-hidden mx-1">
-                <Image className="h-[100px]  w-[150px] " source={{uri:m.img}}/>
-                <View className="p-1">
-                  <Text numberOfLines={1} className="px-1 max-w-[140px] text-[#606C38]">{m.name}</Text>
-                  <Text numberOfLines={1} className="px-1 max-w-[140px] text-xs  text-[#606C38]">{m.name}</Text>
+              <TouchableOpacity onPress={()=>GoTo(m.location)} >
+                <View key={key} style={{ elevation:2 }} className="w-fit t.shadow2xl  bg-[#eff1e6] m-2 rounded-lg overflow-hidden mx-1">
+                  <Image className="h-[100px] object-contain w-[200px] " source={{uri:m.img}}/>
+                  <View className=" absolute top-[65px] left-1 bg-[#0004] rounded-md">
+                    <Text numberOfLines={1} className="px-1 text-white max-w-[140px] ">{m.name}</Text>
+                    <Text numberOfLines={1} className="px-1 text-white max-w-[140px] text-xs  ">{m.name}</Text>
+                  </View>
+                  {/* <View className="flex-row p-1 justify-end">
+                    <TouchableOpacity className="  mr-1 p-1 px-3 w-fit justify-center items-center rounded-full bg-[#545c3999] ">
+                      <Text className="text-white">Show Road</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity className="  mr-1 p-1 px-3 w-fit justify-center items-center rounded-full bg-[#545c3999] ">
+                      <Text className="text-white">Open</Text>
+                    </TouchableOpacity>
+                  </View> */}
                 </View>
-              </View>
+              </TouchableOpacity>
             ))
 
           }
