@@ -81,6 +81,9 @@ const mosques = [
   useEffect(()=>{
     userLocation()
   },[])
+  useEffect(()=>{
+    console.log(search)
+  },[search])
   return (
     <View  className="flex-1 bg-blue-200">
       <View className="absolute top-10  p-4 z-10 w-full flex-row justify-between">
@@ -94,10 +97,10 @@ const mosques = [
 
         { openSearch &&
         <View className="flex-row flex-1 bg-[#e9f1ce] border border-white items-center px-2 rounded-full ">
-          <TouchableOpacity onPress={()=>setOpenSearch(p=>!p)} className=" justify-center mr-2 items-center rounded-full ">
+          <TouchableOpacity onPress={()=>{setOpenSearch(p=>!p);setSearch("")}} className=" justify-center mr-2 items-center rounded-full ">
             <Icon name={"arrow-back"} size={25} color={"#606C38"}></Icon>
           </TouchableOpacity>
-          <TextInput placeholder='search a mosque' className="flex-1 h-full  pr-4  rounded-full "></TextInput>
+          <TextInput value={search} onChangeText={setSearch} placeholder='search a mosque' className="flex-1 h-full  pr-4  rounded-full "></TextInput>
         </View>
         }
         <TouchableOpacity className=" w-10 h-10 ml-2 justify-center items-center rounded-full bg-[#e9f1ce] border border-white">
@@ -138,9 +141,10 @@ const mosques = [
         
 
         {
-          mosques.map(m=>{
+          mosques.filter(m=>m.name.toLocaleLowerCase().includes(search.toLocaleLowerCase())).map((m,key)=>{
             return (
               <Marker
+                key={key}
                 coordinate={m.location}
                 title={m.name}
               >
@@ -185,13 +189,16 @@ const mosques = [
 
       {
         openSearch &&
-        <View className=" h-40 absolute bottom-0 pb-2 w-full">
+        <View className=" h-36 absolute bottom-0 mb-2 w-full">
         <ScrollView  horizontal className="w-full ">
           {
-            mosques.map((m,key)=>(
-              <View key={key} className="p-1 border border-white bg-[#eff1e6] rounded-xl mx-1">
-                <Image className="h-[120px] mb-1 rounded-lg w-[150px] " source={{uri:m.img}}/>
-                <Text className="px-1 h-[16px] max-w-[150px] text-[#606C38]">{m.name}</Text>
+            mosques.filter(m=>m.name.toLocaleLowerCase().includes(search.toLocaleLowerCase())).map((m,key)=>(
+              <View key={key} className="w-fit  bg-[#eff1e6] rounded-lg overflow-hidden mx-1">
+                <Image className="h-[100px]  w-[150px] " source={{uri:m.img}}/>
+                <View className="p-1">
+                  <Text numberOfLines={1} className="px-1 max-w-[140px] text-[#606C38]">{m.name}</Text>
+                  <Text numberOfLines={1} className="px-1 max-w-[140px] text-xs  text-[#606C38]">{m.name}</Text>
+                </View>
               </View>
             ))
 
