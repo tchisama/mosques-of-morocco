@@ -145,7 +145,7 @@ const mosques = [
                 title={m.name}
               >
                 <Image className="w-[35px] h-[42px]" source={require("./assets/marker.png")}/>
-                <Callout className="h-fit w-[200px]">
+                <Callout className="h-fit w-[200px] rounded-xl">
                     <Text className="text-lg">{m.name}</Text>
                     <Text className="py-1 text-xs">{m.name}</Text>
                     <View className="flex-row w-36 py-1">
